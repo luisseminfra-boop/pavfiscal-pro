@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PavFiscal Pro v2.0 - Sistema de Fiscalização de Pavimentação</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>🛣️ PavFiscal Pro</h1>
+                    <p class="version">v2.0</p>
+                </div>
+                <nav class="nav-header">
+                    <button class="btn-config" onclick="abrirConfiguracao()">⚙️ Configurações</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <ul class="menu">
+            <li class="active" onclick="navigateTo('dashboard')">📊 Dashboard</li>
+            <li onclick="navigateTo('formulario')">➕ Registrar</li>
+            <li onclick="navigateTo('historico')">📋 Histórico</li>
+            <li onclick="navigateTo('fotos')">📸 Galeria</li>
+            <li onclick="navigateTo('nao-conformidades')">⚠️ NC</li>
+            <li onclick="navigateTo('progresso')">📈 Progresso</li>
+            <li onclick="navigateTo('relatorios')">📑 Relatórios</li>
+            <li onclick="navigateTo('dados')">💾 Dados</li>
+        </ul>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="container">
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="page active">
+                <h2>📊 Dashboard</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total</h3>
+                        <p class="stat-number" id="totalFiscalizacoes">0</p>
+                    </div>
+                    <div class="stat-card warning">
+                        <h3>Não Conformidades</h3>
+                        <p class="stat-number" id="totalNC">0</p>
+                    </div>
+                    <div class="stat-card info">
+                        <h3>Fotos</h3>
+                        <p class="stat-number" id="totalFotos">0</p>
+                    </div>
+                    <div class="stat-card success">
+                        <h3>Taxa Conformidade</h3>
+                        <p class="stat-number" id="taxaConformidade">0%</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Fiscalizações por Etapa</h3>
+                    <div id="chartEtapas"></div>
+                </div>
+
+                <div class="section">
+                    <h3>Últimas Fiscalizações</h3>
+                    <div id="ultimasFiscalizacoes"></div>
+                </div>
+            </div>
+
+            <!-- FORMULÁRIO -->
+            <div id="formulario" class="page">
+                <h2>➕ Registrar Nova Fiscalização</h2>
+                
+                <form class="formulario">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data *</label>
+                            <input type="date" id="data" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Etapa da Obra *</label>
+                            <select id="etapa" required>
+                                <option value="">Selecione uma etapa</option>
+                                <option>Terraplenagem</option>
+                                <option>Sub-base</option>
+                                <option>Base</option>
+                                <option>Meio-fio</option>
+                                <option>Drenagem</option>
+                                <option>Imprimação</option>
+                                <option>Pintura de Ligação</option>
+                                <option>CBUQ</option>
+                                <option>Sinalização</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Trecho *</label>
+                            <input type="text" id="trecho" placeholder="Ex: km 0+000 a km 1+000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Município</label>
+                            <input type="text" id="municipio" placeholder="Ex: São Paulo">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Responsável</label>
+                            <input type="text" id="responsavel" placeholder="Nome do fiscal">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Observação</label>
+                        <textarea id="observacao" placeholder="Anotações gerais sobre a fiscalização"></textarea>
+                    </div>
+
+                    <div class="section">
+                        <h3>Checklist de Conformidade</h3>
+                        <div class="checklist">
+                            <label><input type="checkbox" value="Compactação adequada" class="checklist"> Compactação adequada</label>
+                            <label><input type="checkbox" value="Drenagem funcional" class="checklist"> Drenagem funcional</label>
+                            <label><input type="checkbox" value="Superfície lisa" class="checklist"> Superfície lisa</label>
+                            <label><input type="checkbox" value="Espessura correta" class="checklist"> Espessura correta</label>
+                            <label><input type="checkbox" value="Sem trincas" class="checklist"> Sem trincas</label>
+                            <label><input type="checkbox" value="Bordas bem acabadas" class="checklist"> Bordas bem acabadas</label>
+                            <label><input type="checkbox" value="Temperatura correta" class="checklist"> Temperatura correta</label>
+                            <label><input type="checkbox" value="Documentação OK" class="checklist"> Documentação OK</label>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Não Conformidade (se houver)</h3>
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea id="naoConformidade" placeholder="Descreva a não conformidade detectada"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Severidade</label>
+                            <select id="severidade">
+                                <option value="">Não informado</option>
+                                <option value="Crítica">🔴 Crítica (Parar obra)</option>
+                                <option value="Alta">🟠 Alta (Ação imediata)</option>
+                                <option value="Média">🟡 Média (Plano de ação)</option>
+                                <option value="Baixa">🔵 Baixa (Monitorar)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fotos (máx 5MB cada)</label>
+                        <input type="file" id="fotos" multiple accept="image/*">
+                        <small>Você pode enviar múltiplas fotos para documentar a fiscalização</small>
+                    </div>
+
+                    <button type="button" class="btn-primary" onclick="salvarFiscalizacao()">💾 Salvar Fiscalização</button>
+                </form>
+            </div>
+
+            <!-- HISTÓRICO -->
+            <div id="historico" class="page">
+                <h2>📋 Histórico de Fiscalizações</h2>
+                <div id="historico"></div>
+            </div>
+
+            <!-- GALERIA -->
+            <div id="fotos" class="page">
+                <h2>📸 Galeria de Fotos</h2>
+                <div id="galeria" class="galeria"></div>
+            </div>
+
+            <!-- NÃO CONFORMIDADES -->
+            <div id="nao-conformidades" class="page">
+                <h2>⚠️ Não Conformidades</h2>
+                <div id="naoConformidadesContainer"></div>
+            </div>
+
+            <!-- PROGRESSO -->
+            <div id="progresso" class="page">
+                <h2>📈 Progresso por Etapa</h2>
+                
+                <div class="progresso-container">
+                    <div class="progresso-item">
+                        <label>Terraplenagem</label>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" id="prog-terraplenagem">0%</div>
+                        </div>
+                    </div>
+                    <div class="progresso-item">
+                        <label>Sub-base</label>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" id="prog-subbase">0%</div>
+                        </div>
+                    </div>
+                    <div class="progresso-item">
+                        <label>Base</label>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" id="prog-base">0%</div>
+                        </div>
+                    </div>
+                    <div class="progresso-item">
+                        <label>Meio-fio</label>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" id="prog-meiofio">0%</div>
+                        </div>
+                    </div>
+                    <div class="progresso-item">
+                        <label>Drenagem</label>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" id="prog-drenagem">0%</div>
+                        </div>
+                    </div>
+                    <div class="progresso-item">
+                        <label>Imprimação</label>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" id="prog-imprimacao">0%</div>
+                        </div>
+                    </div>
+                    <div class="progresso-item">
+                        <label>Pintura de Ligação</label>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" id="prog-pinturaeligacao">0%</div>
+                        </div>
+                    </div>
+                    <div class="progresso-item">
+                        <label>CBUQ</label>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" id="prog-cbuq">0%</div>
+                        </div>
+                    </div>
+                    <div class="progresso-item">
+                        <label>Sinalização</label>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" id="prog-sinalizacao">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RELATÓRIOS -->
+            <div id="relatorios" class="page">
+                <h2>📑 Relatórios</h2>
+                
+                <div class="relatorios-buttons">
+                    <button class="btn-secondary" onclick="gerarRelatorioPorEtapa()">📊 Por Etapa</button>
+                    <button class="btn-secondary" onclick="gerarRelatorioPorData()">📅 Por Período</button>
+                    <button class="btn-secondary" onclick="exportarCSV()">📥 Exportar CSV</button>
+                    <button class="btn-secondary" onclick="gerarRelatorioPDF()">📄 Gerar PDF</button>
+                </div>
+
+                <div id="relatorio-content" class="relatorio-content"></div>
+            </div>
+
+            <!-- DADOS -->
+            <div id="dados" class="page">
+                <h2>💾 Gerenciamento de Dados</h2>
+                
+                <div class="dados-grid">
+                    <div class="dados-card">
+                        <h3>📤 Exportar Backup</h3>
+                        <p>Salve todos os seus dados em um arquivo JSON para backup seguro.</p>
+                        <button class="btn-primary" onclick="exportarDados()">Exportar</button>
+                    </div>
+                    <div class="dados-card warning">
+                        <h3>🗑️ Deletar Tudo</h3>
+                        <p>Remova permanentemente todos os dados (não pode ser desfeito).</p>
+                        <button class="btn-danger" onclick="limparDados()">Deletar</button>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>ℹ️ Informações</h4>
+                    <p>• Os dados são armazenados localmente no seu navegador</p>
+                    <p>• Realize backups regularmente para não perder informações</p>
+                    <p>• Use a configuração de sincronização na nuvem (em desenvolvimento)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIGURAÇÕES -->
+    <div id="configuracao-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Configurações</h2>
+                <span class="close" onclick="fecharConfiguracao()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="config-item">
+                    <label>
+                        <input type="checkbox" id="darkMode">
+                        🌙 Modo Escuro
+                    </label>
+                </div>
+                <div class="config-item">
+                    <label>
+                        <input type="checkbox" id="notifications" checked>
+                        🔔 Notificações
+                    </label>
+                </div>
+                <div class="config-item">
+                    <label>
+                        <input type="checkbox" id="cloudSync">
+                        ☁️ Sincronização na Nuvem (em desenvolvimento)
+                    </label>
+                </div>
+                <div class="config-item">
+                    <label>
+                        <input type="checkbox" id="autoBackup" checked>
+                        🔄 Backup Automático
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="fecharConfiguracao()">Cancelar</button>
+                <button class="btn-primary" onclick="salvarConfiguracao()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
